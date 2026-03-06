@@ -21,7 +21,7 @@ export function GlassSelect({ label, error, options, placeholder, className, ...
       <div className="relative">
         <select
           className={cn(
-            "w-full h-10 rounded-xl px-3 pr-8 text-sm appearance-none",
+            "w-full h-11 sm:h-10 rounded-xl px-3 pr-8 text-sm appearance-none",
             "bg-white/5 border border-white/10",
             "text-white/90 placeholder:text-white/25",
             "transition-all duration-150",

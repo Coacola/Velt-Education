@@ -79,11 +79,40 @@ export function PaymentsClient({ invoices, students }: PaymentsClientProps) {
       </motion.div>
 
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-64">
+        <div className="w-full sm:w-64">
           <GlassInput placeholder="Search payments..." value={search} onChange={e => setSearch(e.target.value)} leftIcon={<Search className="w-4 h-4" />} />
         </div>
       </div>
-      <GlassTable columns={columns} data={invoices} globalFilter={debouncedSearch} pagination />
+      <GlassTable
+        columns={columns}
+        data={invoices}
+        globalFilter={debouncedSearch}
+        pagination
+        mobileCardRenderer={(invoice) => {
+          const bal = invoice.totalAmount - invoice.paidAmount;
+          const ps = getPaymentStatusStyle(invoice.status);
+          return (
+            <div className="glass-panel p-4 rounded-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-white/90">{invoice.studentName}</p>
+                <GlassBadge variant={invoice.status === "paid" ? "green" : invoice.status === "partial" ? "amber" : "red"} dot size="sm">
+                  {ps.label}
+                </GlassBadge>
+              </div>
+              <div className="flex items-center justify-between text-xs text-white/50">
+                <span>Total: {formatCurrency(invoice.totalAmount)}</span>
+                <span>Paid: {formatCurrency(invoice.paidAmount)}</span>
+                <span className={cn("font-medium", bal > 0 ? "text-red-400" : "text-white/40")}>
+                  {bal > 0 ? formatCurrency(bal) : "—"}
+                </span>
+              </div>
+              <div className="text-xs text-white/35">
+                Due: {formatDate(invoice.dueDate)}
+              </div>
+            </div>
+          );
+        }}
+      />
 
       <GlassModal open={payModalOpen} onClose={() => setPayModalOpen(false)} title="Record Payment" size="md"
         footer={<><GlassButton variant="ghost" onClick={() => setPayModalOpen(false)}>Cancel</GlassButton><GlassButton variant="primary" onClick={() => { setPayModalOpen(false); toast.success("Payment recorded"); }}>Record</GlassButton></>}

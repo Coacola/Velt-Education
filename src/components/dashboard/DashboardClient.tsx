@@ -84,24 +84,24 @@ export function DashboardClient({
       </motion.div>
 
       {/* Row 2: Charts + Widget */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
-        <div className="lg:col-span-8">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
+        <div className="md:col-span-8">
           <RevenueChart data={revenueTrend} />
         </div>
-        <div className="lg:col-span-4">
+        <div className="md:col-span-4">
           <UnpaidWidget students={students} />
         </div>
       </div>
 
       {/* Row 3: Attendance Chart + Activity Feed + Risk Widget */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
         <div className="lg:col-span-5">
           <AttendanceChart data={attendanceTrend} />
         </div>
         <div className="lg:col-span-4">
           <ActivityFeed events={activity} />
         </div>
-        <div className="lg:col-span-3">
+        <div className="md:col-span-2 lg:col-span-3">
           <RiskWidget students={atRiskStudents} />
         </div>
       </div>

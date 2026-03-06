@@ -29,7 +29,7 @@ export const GlassInput = forwardRef<HTMLInputElement, GlassInputProps>(
           <input
             ref={ref}
             className={cn(
-              "w-full h-10 rounded-xl px-3 text-sm",
+              "w-full h-11 sm:h-10 rounded-xl px-3 text-sm",
               "bg-white/5 border border-white/10",
               "text-white/95 placeholder:text-white/25",
               "transition-all duration-150",

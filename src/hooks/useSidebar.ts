@@ -6,6 +6,7 @@ const STORAGE_KEY = "velt_sidebar_collapsed";
 
 export function useSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -24,5 +25,8 @@ export function useSidebar() {
     });
   };
 
-  return { collapsed, toggle, mounted };
+  const toggleMobile = () => setMobileOpen(prev => !prev);
+  const closeMobile = () => setMobileOpen(false);
+
+  return { collapsed, toggle, mounted, mobileOpen, toggleMobile, closeMobile };
 }

@@ -69,7 +69,7 @@ export function GlassModal({ open, onClose, title, description, children, size =
             exit="exit"
           >
             {/* Header */}
-            <div className="flex items-start justify-between p-6 pb-4 border-b border-white/8">
+            <div className="flex items-start justify-between p-4 sm:p-6 pb-3 sm:pb-4 border-b border-white/8">
               <div>
                 <h2 className="text-base font-semibold text-white/95">{title}</h2>
                 {description && <p className="text-sm text-white/50 mt-0.5">{description}</p>}
@@ -80,13 +80,13 @@ export function GlassModal({ open, onClose, title, description, children, size =
             </div>
 
             {/* Body */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
               {children}
             </div>
 
             {/* Footer */}
             {footer && (
-              <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/8 bg-white/2">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-t border-white/8 bg-white/2">
                 {footer}
               </div>
             )}

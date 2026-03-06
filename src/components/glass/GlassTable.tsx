@@ -30,6 +30,7 @@ interface GlassTableProps<TData> {
   globalFilter?: string;
   pagination?: boolean;
   pageSize?: number;
+  mobileCardRenderer?: (row: TData) => React.ReactNode;
 }
 
 export function GlassTable<TData>({
@@ -42,6 +43,7 @@ export function GlassTable<TData>({
   globalFilter = "",
   pagination = false,
   pageSize = 20,
+  mobileCardRenderer,
 }: GlassTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -63,9 +65,27 @@ export function GlassTable<TData>({
     return <EmptyState title={emptyTitle} description={emptyDescription} />;
   }
 
+  const rows = table.getRowModel().rows;
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="overflow-x-auto rounded-2xl border border-white/8 shadow-glass">
+      {/* Mobile card view */}
+      {mobileCardRenderer && (
+        <div className="flex flex-col gap-2 sm:hidden">
+          {rows.map((row) => (
+            <div
+              key={row.id}
+              onClick={() => onRowClick?.(row.original)}
+              className={onRowClick ? "cursor-pointer" : undefined}
+            >
+              {mobileCardRenderer(row.original)}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Desktop table */}
+      <div className={cn("overflow-x-auto rounded-2xl border border-white/8 shadow-glass", mobileCardRenderer ? "hidden sm:block" : "block")}>
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-white/8 bg-canvas-900/80" style={{ backdropFilter: "blur(8px)" }}>
@@ -104,7 +124,7 @@ export function GlassTable<TData>({
             initial="hidden"
             animate="visible"
           >
-            {table.getRowModel().rows.map((row, i) => (
+            {rows.map((row) => (
               <motion.tr
                 key={row.id}
                 variants={listItemVariants}
@@ -127,7 +147,7 @@ export function GlassTable<TData>({
       </div>
 
       {pagination && (
-        <div className="flex items-center justify-between px-1">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-1">
           <p className="text-xs text-white/40">
             {table.getFilteredRowModel().rows.length} total rows
           </p>

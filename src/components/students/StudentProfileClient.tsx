@@ -67,7 +67,7 @@ export function StudentProfileClient({ student, classes, invoices, sessions, exa
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
             <GlassButton variant="secondary" size="sm" leftIcon={<CreditCard className="w-3.5 h-3.5" />}>Record Payment</GlassButton>
             <GlassButton variant="ghost" size="sm" leftIcon={<MessageSquare className="w-3.5 h-3.5" />}>Message Parent</GlassButton>
           </div>
@@ -75,13 +75,13 @@ export function StudentProfileClient({ student, classes, invoices, sessions, exa
       </GlassCard>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 mb-5 p-1 bg-white/3 rounded-xl border border-white/6 w-fit">
+      <div className="flex items-center gap-1 mb-5 p-1 bg-white/3 rounded-xl border border-white/6 w-full sm:w-fit overflow-x-auto scrollbar-hide">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "px-4 py-2 rounded-lg text-xs font-medium transition-all duration-150",
+              "px-4 py-2 rounded-lg text-xs font-medium transition-all duration-150 whitespace-nowrap",
               activeTab === tab.id
                 ? "bg-brand-500/20 text-brand-300 shadow-inner"
                 : "text-white/40 hover:text-white/70 hover:bg-white/5"

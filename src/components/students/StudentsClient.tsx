@@ -115,7 +115,7 @@ export function StudentsClient({ initialData }: StudentsClientProps) {
       id: "actions",
       header: "",
       cell: info => (
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
           <GlassButton variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); router.push(`/admin/students/${info.row.original.id}`); }}>
             <Eye className="w-3.5 h-3.5" />
           </GlassButton>
@@ -138,8 +138,8 @@ export function StudentsClient({ initialData }: StudentsClientProps) {
       />
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <div className="w-64">
+      <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mb-5">
+        <div className="w-full sm:w-64">
           <GlassInput
             placeholder="Search students..."
             value={search}
@@ -156,7 +156,7 @@ export function StudentsClient({ initialData }: StudentsClientProps) {
           ]}
           value={yearFilter}
           onChange={e => setYearFilter(e.target.value)}
-          className="w-36"
+          className="w-full sm:w-36"
         />
         <GlassSelect
           options={[
@@ -167,7 +167,7 @@ export function StudentsClient({ initialData }: StudentsClientProps) {
           ]}
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          className="w-36"
+          className="w-full sm:w-36"
         />
         <GlassButton
           variant={riskFilter ? "danger" : "ghost"}
@@ -185,6 +185,33 @@ export function StudentsClient({ initialData }: StudentsClientProps) {
         onRowClick={row => router.push(`/admin/students/${row.id}`)}
         globalFilter={debouncedSearch}
         pagination
+        mobileCardRenderer={(student) => (
+          <div className="glass-panel p-4 rounded-xl space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center text-xs font-bold text-brand-300">
+                  {student.firstName[0]}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-white/90">{student.fullName}</p>
+                  <p className="text-xs text-white/40">{student.school}</p>
+                </div>
+              </div>
+              <GlassBadge variant="brand" size="sm">{student.year}΄</GlassBadge>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className={cn("font-medium", getAttendanceColor(student.attendanceRate))}>
+                {formatPercent(student.attendanceRate)} att.
+              </span>
+              <span className={cn("font-medium", student.outstandingBalance > 0 ? "text-red-400" : "text-white/40")}>
+                {student.outstandingBalance > 0 ? formatCurrency(student.outstandingBalance) : "Paid"}
+              </span>
+              <GlassBadge variant={student.paymentStatus === "paid" ? "green" : student.paymentStatus === "partial" ? "amber" : "red"} dot size="sm">
+                {getPaymentStatusStyle(student.paymentStatus).label}
+              </GlassBadge>
+            </div>
+          </div>
+        )}
       />
 
       <AddStudentModal open={addModalOpen} onClose={() => setAddModalOpen(false)} />
