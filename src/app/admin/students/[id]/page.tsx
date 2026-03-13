@@ -1,22 +1,29 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@/lib/auth/config";
 import { StudentProfileClient } from "@/components/students/StudentProfileClient";
-import {
-  mockStudents, getStudentById, getClassesForStudent,
-  getInvoicesForStudent, mockSessions, mockExams,
-} from "@/lib/mock";
+import { getStudentById } from "@/lib/services/students";
+import { getClassesForStudent } from "@/lib/services/classes";
+import { getInvoicesForStudent } from "@/lib/services/invoices";
+import { getSessions } from "@/lib/services/attendance";
+import { getExams } from "@/lib/services/exams";
 
-export function generateStaticParams() {
-  return mockStudents.map(s => ({ id: s.id }));
-}
+export default async function StudentDetailPage({ params }: { params: { id: string } }) {
+  const session = await auth();
+  if (!session?.user?.tenantId) redirect("/login");
 
-export default function StudentDetailPage({ params }: { params: { id: string } }) {
-  const student = getStudentById(params.id);
+  const tenantId = session.user.tenantId;
+  const student = await getStudentById(tenantId, params.id);
   if (!student) notFound();
 
-  const classes = getClassesForStudent(student.id);
-  const invoices = getInvoicesForStudent(student.id);
-  const sessions = mockSessions.filter(s => s.records.some(r => r.studentId === student.id));
-  const exams = mockExams.filter(e => e.grades.some(g => g.studentId === student.id));
+  const [classes, invoices, allSessions, allExams] = await Promise.all([
+    getClassesForStudent(tenantId, student.id),
+    getInvoicesForStudent(tenantId, student.id),
+    getSessions(tenantId),
+    getExams(tenantId),
+  ]);
+
+  const sessions = allSessions.filter(s => s.records.some(r => r.studentId === student.id));
+  const exams = allExams.filter(e => e.grades.some(g => g.studentId === student.id));
 
   return (
     <StudentProfileClient

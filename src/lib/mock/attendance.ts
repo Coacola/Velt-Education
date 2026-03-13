@@ -4,7 +4,7 @@ export const mockSessions: AttendanceSession[] = [
   {
     id: "ses_001", classId: "cls_001", className: "Μαθηματικά Α' Λυκείου", subject: "Mathematics",
     teacherId: "tch_001", teacherName: "Δρ. Ανδρέας Κατσαρός",
-    date: "2025-02-24", startTime: "16:00", endTime: "17:30", status: "completed",
+    date: "2026-02-24", startTime: "16:00", endTime: "17:30", status: "completed",
     topic: "Τριγωνομετρία - Βασικές ταυτότητες",
     records: [
       { studentId: "stu_001", studentName: "Αλέξανδρος Παπαδόπουλος", status: "present" },
@@ -17,7 +17,7 @@ export const mockSessions: AttendanceSession[] = [
   {
     id: "ses_002", classId: "cls_002", className: "Μαθηματικά Β' Λυκείου", subject: "Mathematics",
     teacherId: "tch_001", teacherName: "Δρ. Ανδρέας Κατσαρός",
-    date: "2025-02-25", startTime: "17:00", endTime: "18:30", status: "completed",
+    date: "2026-02-25", startTime: "17:00", endTime: "18:30", status: "completed",
     topic: "Παράγωγοι - Κανόνες παραγώγισης",
     records: [
       { studentId: "stu_002", studentName: "Μαρία Ιωάννου", status: "absent" },
@@ -31,7 +31,7 @@ export const mockSessions: AttendanceSession[] = [
   {
     id: "ses_003", classId: "cls_004", className: "Χημεία-Βιολογία Γ' Λυκείου", subject: "Chemistry",
     teacherId: "tch_003", teacherName: "Σπύρος Λεωνίδου",
-    date: "2025-02-24", startTime: "17:30", endTime: "19:00", status: "completed",
+    date: "2026-02-24", startTime: "17:30", endTime: "19:00", status: "completed",
     topic: "Οργανική Χημεία - Υδρογονάνθρακες",
     records: [
       { studentId: "stu_003", studentName: "Κωνσταντίνος Χριστοδούλου", status: "present" },
@@ -45,7 +45,7 @@ export const mockSessions: AttendanceSession[] = [
   {
     id: "ses_004", classId: "cls_005", className: "Αγγλικά Β2-C1", subject: "English",
     teacherId: "tch_002", teacherName: "Μαρία Σταύρου",
-    date: "2025-02-25", startTime: "15:00", endTime: "16:30", status: "completed",
+    date: "2026-02-25", startTime: "15:00", endTime: "16:30", status: "completed",
     topic: "Essay Writing - Argumentative Essays",
     records: [
       { studentId: "stu_002", studentName: "Μαρία Ιωάννου", status: "present" },
@@ -59,7 +59,7 @@ export const mockSessions: AttendanceSession[] = [
   {
     id: "ses_005", classId: "cls_001", className: "Μαθηματικά Α' Λυκείου", subject: "Mathematics",
     teacherId: "tch_001", teacherName: "Δρ. Ανδρέας Κατσαρός",
-    date: "2025-02-26", startTime: "16:00", endTime: "17:30", status: "completed",
+    date: "2026-02-26", startTime: "16:00", endTime: "17:30", status: "completed",
     topic: "Τριγωνομετρία - Επίλυση τριγώνων",
     records: [
       { studentId: "stu_001", studentName: "Αλέξανδρος Παπαδόπουλος", status: "present" },
@@ -72,7 +72,7 @@ export const mockSessions: AttendanceSession[] = [
   {
     id: "ses_006", classId: "cls_003", className: "Φυσική Α' Λυκείου", subject: "Physics",
     teacherId: "tch_001", teacherName: "Δρ. Ανδρέας Κατσαρός",
-    date: "2025-02-28", startTime: "15:00", endTime: "16:30", status: "completed",
+    date: "2026-02-28", startTime: "15:00", endTime: "16:30", status: "completed",
     topic: "Δυναμική - Νόμοι Νεύτωνα",
     records: [
       { studentId: "stu_001", studentName: "Αλέξανδρος Παπαδόπουλος", status: "present" },
@@ -84,7 +84,7 @@ export const mockSessions: AttendanceSession[] = [
   {
     id: "ses_007", classId: "cls_001", className: "Μαθηματικά Α' Λυκείου", subject: "Mathematics",
     teacherId: "tch_001", teacherName: "Δρ. Ανδρέας Κατσαρός",
-    date: "2025-03-03", startTime: "16:00", endTime: "17:30", status: "scheduled",
+    date: "2026-03-03", startTime: "16:00", endTime: "17:30", status: "scheduled",
     topic: "Εκθετικές - Λογαριθμικές συναρτήσεις",
     records: [
       { studentId: "stu_001", studentName: "Αλέξανδρος Παπαδόπουλος", status: "present" },
@@ -97,7 +97,7 @@ export const mockSessions: AttendanceSession[] = [
   {
     id: "ses_008", classId: "cls_006", className: "Βιολογία Γ' Λυκείου", subject: "Biology",
     teacherId: "tch_003", teacherName: "Σπύρος Λεωνίδου",
-    date: "2025-02-27", startTime: "15:30", endTime: "17:00", status: "completed",
+    date: "2026-02-27", startTime: "15:30", endTime: "17:00", status: "completed",
     topic: "Γενετική - DNA και Αναπαραγωγή",
     records: [
       { studentId: "stu_003", studentName: "Κωνσταντίνος Χριστοδούλου", status: "present" },

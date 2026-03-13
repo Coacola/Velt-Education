@@ -84,7 +84,7 @@ export function getAverageAttendanceRate(): number {
   return rates.reduce((a, b) => a + b, 0) / rates.length;
 }
 
-// Revenue trend: last 6 months
+// Revenue trend: last 7 months (Sep 2025 - Mar 2026)
 export function getRevenueTrend(): { month: string; revenue: number; collected: number }[] {
   return [
     { month: "Sep", revenue: 4200, collected: 3920 },
@@ -93,15 +93,16 @@ export function getRevenueTrend(): { month: string; revenue: number; collected: 
     { month: "Dec", revenue: 3640, collected: 3360 },
     { month: "Jan", revenue: 4760, collected: 4060 },
     { month: "Feb", revenue: 4760, collected: 3920 },
+    { month: "Mar", revenue: 4760, collected: 1260 },
   ];
 }
 
 // Attendance trend: last 4 weeks
 export function getAttendanceTrend(): { week: string; present: number; absent: number; late: number }[] {
   return [
-    { week: "W1 Feb", present: 82, absent: 12, late: 6 },
     { week: "W2 Feb", present: 88, absent: 8, late: 4 },
     { week: "W3 Feb", present: 79, absent: 14, late: 7 },
     { week: "W4 Feb", present: 85, absent: 10, late: 5 },
+    { week: "W1 Mar", present: 83, absent: 11, late: 6 },
   ];
 }

@@ -8,19 +8,29 @@ import { PanelLeftClose, PanelLeftOpen, Zap, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS, INSTITUTE_NAME } from "@/lib/constants";
 import { sidebarVariants, sidebarLabelVariants } from "@/lib/motion";
+import type { LucideIcon } from "lucide-react";
+
+export interface NavItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
 
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  navItems?: readonly NavItem[];
+  subtitle?: string;
+  basePath?: string;
 }
 
-function SidebarContent({ collapsed, onToggle, onNavClick }: { collapsed: boolean; onToggle: () => void; onNavClick?: () => void }) {
+function SidebarContent({ collapsed, onToggle, onNavClick, navItems, subtitle, basePath }: { collapsed: boolean; onToggle: () => void; onNavClick?: () => void; navItems: readonly NavItem[]; subtitle: string; basePath: string }) {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
-    if (href === "/admin") return pathname === "/admin";
+    if (href === basePath) return pathname === basePath;
     return pathname.startsWith(href);
   };
 
@@ -37,14 +47,14 @@ function SidebarContent({ collapsed, onToggle, onNavClick }: { collapsed: boolea
           className="overflow-hidden"
         >
           <p className="text-sm font-semibold text-white/95 whitespace-nowrap">{INSTITUTE_NAME}</p>
-          <p className="text-[10px] text-white/35 whitespace-nowrap -mt-0.5">Admin Dashboard</p>
+          <p className="text-[10px] text-white/35 whitespace-nowrap -mt-0.5">{subtitle}</p>
         </motion.div>
       </div>
 
       {/* Nav items */}
       <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden">
         <div className="space-y-0.5 px-2">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const active = isActive(item.href);
             const Icon = item.icon;
             return (
@@ -115,7 +125,7 @@ function SidebarContent({ collapsed, onToggle, onNavClick }: { collapsed: boolea
   );
 }
 
-export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose, navItems = NAV_ITEMS, subtitle = "Admin Dashboard", basePath = "/admin" }: SidebarProps) {
   const pathname = usePathname();
 
   // Auto-close mobile drawer on navigation
@@ -137,7 +147,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
           borderRight: "1px solid rgba(255,255,255,0.07)",
         }}
       >
-        <SidebarContent collapsed={collapsed} onToggle={onToggle} />
+        <SidebarContent collapsed={collapsed} onToggle={onToggle} navItems={navItems} subtitle={subtitle} basePath={basePath} />
       </motion.aside>
 
       {/* Mobile drawer */}
@@ -174,7 +184,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <SidebarContent collapsed={false} onToggle={onToggle} onNavClick={onMobileClose} />
+              <SidebarContent collapsed={false} onToggle={onToggle} onNavClick={onMobileClose} navItems={navItems} subtitle={subtitle} basePath={basePath} />
             </motion.aside>
           </>
         )}

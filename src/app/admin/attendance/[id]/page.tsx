@@ -1,13 +1,14 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@/lib/auth/config";
 import { SessionDetailClient } from "@/components/attendance/SessionDetailClient";
-import { mockSessions, getSessionById } from "@/lib/mock";
+import { getSessionById } from "@/lib/services/attendance";
 
-export function generateStaticParams() {
-  return mockSessions.map(s => ({ id: s.id }));
-}
+export default async function SessionDetailPage({ params }: { params: { id: string } }) {
+  const session = await auth();
+  if (!session?.user?.tenantId) redirect("/login");
 
-export default function SessionDetailPage({ params }: { params: { id: string } }) {
-  const session = getSessionById(params.id);
-  if (!session) notFound();
-  return <SessionDetailClient session={session} />;
+  const attSession = await getSessionById(session.user.tenantId, params.id);
+  if (!attSession) notFound();
+
+  return <SessionDetailClient session={attSession} />;
 }

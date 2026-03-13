@@ -10,7 +10,7 @@ export const mockClasses: Class[] = [
       { day: "Monday", startTime: "16:00", endTime: "17:30" },
       { day: "Wednesday", startTime: "16:00", endTime: "17:30" }
     ],
-    startDate: "2024-09-09", endDate: "2025-06-15"
+    startDate: "2025-09-08", endDate: "2026-06-15"
   },
   {
     id: "cls_002", name: "Μαθηματικά Β' Λυκείου", subject: "Mathematics",
@@ -21,7 +21,7 @@ export const mockClasses: Class[] = [
       { day: "Tuesday", startTime: "17:00", endTime: "18:30" },
       { day: "Thursday", startTime: "17:00", endTime: "18:30" }
     ],
-    startDate: "2024-09-09", endDate: "2025-06-15"
+    startDate: "2025-09-08", endDate: "2026-06-15"
   },
   {
     id: "cls_003", name: "Φυσική Α' Λυκείου", subject: "Physics",
@@ -31,7 +31,7 @@ export const mockClasses: Class[] = [
     schedule: [
       { day: "Friday", startTime: "15:00", endTime: "16:30" }
     ],
-    startDate: "2024-09-09", endDate: "2025-06-15"
+    startDate: "2025-09-08", endDate: "2026-06-15"
   },
   {
     id: "cls_004", name: "Χημεία-Βιολογία Γ' Λυκείου", subject: "Chemistry",
@@ -42,7 +42,7 @@ export const mockClasses: Class[] = [
       { day: "Monday", startTime: "17:30", endTime: "19:00" },
       { day: "Wednesday", startTime: "17:30", endTime: "19:00" }
     ],
-    startDate: "2024-09-09", endDate: "2025-06-15"
+    startDate: "2025-09-08", endDate: "2026-06-15"
   },
   {
     id: "cls_005", name: "Αγγλικά Β2-C1", subject: "English",
@@ -53,7 +53,7 @@ export const mockClasses: Class[] = [
       { day: "Tuesday", startTime: "15:00", endTime: "16:30" },
       { day: "Saturday", startTime: "10:00", endTime: "11:30" }
     ],
-    startDate: "2024-09-09", endDate: "2025-06-15"
+    startDate: "2025-09-08", endDate: "2026-06-15"
   },
   {
     id: "cls_006", name: "Βιολογία Γ' Λυκείου", subject: "Biology",
@@ -63,7 +63,7 @@ export const mockClasses: Class[] = [
     schedule: [
       { day: "Thursday", startTime: "15:30", endTime: "17:00" }
     ],
-    startDate: "2024-09-09", endDate: "2025-06-15"
+    startDate: "2025-09-08", endDate: "2026-06-15"
   },
   {
     id: "cls_007", name: "Ιστορία - Οικονομικά Γ'", subject: "History",
@@ -73,7 +73,7 @@ export const mockClasses: Class[] = [
     schedule: [
       { day: "Wednesday", startTime: "15:00", endTime: "16:30" }
     ],
-    startDate: "2024-09-09", endDate: "2025-06-15"
+    startDate: "2025-09-08", endDate: "2026-06-15"
   },
   {
     id: "cls_008", name: "Πληροφορική & Προγραμματισμός", subject: "Informatics",
@@ -83,6 +83,6 @@ export const mockClasses: Class[] = [
     schedule: [
       { day: "Friday", startTime: "17:00", endTime: "18:30" }
     ],
-    startDate: "2024-09-09", endDate: "2025-06-15"
+    startDate: "2025-09-08", endDate: "2026-06-15"
   }
 ];

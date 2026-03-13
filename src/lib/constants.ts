@@ -7,6 +7,10 @@ import {
   CreditCard,
   FileText,
   Settings,
+  ClipboardList,
+  CheckSquare,
+  BarChart3,
+  User,
 } from "lucide-react";
 
 export const NAV_ITEMS = [
@@ -17,6 +21,27 @@ export const NAV_ITEMS = [
   { label: "Attendance", href: "/admin/attendance", icon: CalendarCheck },
   { label: "Payments", href: "/admin/payments", icon: CreditCard },
   { label: "Exams", href: "/admin/exams", icon: FileText },
+] as const;
+
+export const TEACHER_NAV_ITEMS = [
+  { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
+  { label: "My Classes", href: "/teacher/classes", icon: BookOpen },
+  { label: "Homework", href: "/teacher/homework", icon: ClipboardList },
+  { label: "My Students", href: "/teacher/students", icon: Users },
+  { label: "Attendance", href: "/teacher/attendance", icon: CalendarCheck },
+  { label: "Exams", href: "/teacher/exams", icon: FileText },
+  { label: "Payments", href: "/teacher/payments", icon: CreditCard },
+] as const;
+
+export const STUDENT_NAV_ITEMS = [
+  { label: "Dashboard", href: "/student", icon: LayoutDashboard },
+  { label: "My Classes", href: "/student/classes", icon: BookOpen },
+  { label: "Homework", href: "/student/homework", icon: ClipboardList },
+  { label: "My Todos", href: "/student/todos", icon: CheckSquare },
+  { label: "My Grades", href: "/student/grades", icon: BarChart3 },
+  { label: "Attendance", href: "/student/attendance", icon: CalendarCheck },
+  { label: "Payments", href: "/student/payments", icon: CreditCard },
+  { label: "Profile", href: "/student/profile", icon: User },
 ] as const;
 
 export const SUBJECTS = [

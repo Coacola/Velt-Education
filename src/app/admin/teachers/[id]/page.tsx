@@ -1,13 +1,17 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@/lib/auth/config";
 import { TeacherDetailClient } from "@/components/teachers/TeacherDetailClient";
-import { mockTeachers, getTeacherById, getClassesForTeacher } from "@/lib/mock";
+import { getTeacherById } from "@/lib/services/teachers";
+import { getClassesForTeacher } from "@/lib/services/classes";
 
-export function generateStaticParams() {
-  return mockTeachers.map(t => ({ id: t.id }));
-}
+export default async function TeacherDetailPage({ params }: { params: { id: string } }) {
+  const session = await auth();
+  if (!session?.user?.tenantId) redirect("/login");
 
-export default function TeacherDetailPage({ params }: { params: { id: string } }) {
-  const teacher = getTeacherById(params.id);
+  const tenantId = session.user.tenantId;
+  const teacher = await getTeacherById(tenantId, params.id);
   if (!teacher) notFound();
-  return <TeacherDetailClient teacher={teacher} classes={getClassesForTeacher(teacher.id)} />;
+
+  const classes = await getClassesForTeacher(tenantId, teacher.id);
+  return <TeacherDetailClient teacher={teacher} classes={classes} />;
 }

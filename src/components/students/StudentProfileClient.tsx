@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { ArrowLeft, CreditCard, MessageSquare, AlertTriangle } from "lucide-react";
+import { ArrowLeft, CreditCard, MessageSquare, Pencil, Save } from "lucide-react";
+import { toast } from "sonner";
+import { updateStudent } from "@/lib/actions/students";
 import { AnimatedPage } from "@/components/shared/AnimatedPage";
 import { GlassCard } from "@/components/glass/GlassCard";
 import { GlassButton } from "@/components/glass/GlassButton";
 import { GlassBadge } from "@/components/glass/GlassBadge";
+import { EditStudentModal } from "./modals/EditStudentModal";
 import { cn, formatCurrency, formatPercent, formatDate, getAttendanceColor, getGradeColor, getPaymentStatusStyle, getAttendanceStatusStyle } from "@/lib/utils";
 import type { Student } from "@/lib/types/student";
 import type { Class } from "@/lib/types/class";
@@ -20,10 +23,15 @@ interface StudentProfileClientProps {
   invoices: Invoice[];
   sessions: AttendanceSession[];
   exams: Exam[];
+  basePath?: string; // "/admin" (default) or "/teacher"
 }
 
-export function StudentProfileClient({ student, classes, invoices, sessions, exams }: StudentProfileClientProps) {
+export function StudentProfileClient({ student, classes, invoices, sessions, exams, basePath = "/admin" }: StudentProfileClientProps) {
+  const isAdmin = basePath === "/admin";
   const [activeTab, setActiveTab] = useState("overview");
+  const [editOpen, setEditOpen] = useState(false);
+  const [notesValue, setNotesValue] = useState(student.notes || "");
+  const [notesSaving, startNotesTransition] = useTransition();
 
   const tabs = [
     { id: "overview", label: "Overview" },
@@ -35,10 +43,21 @@ export function StudentProfileClient({ student, classes, invoices, sessions, exa
 
   const paymentStyle = getPaymentStatusStyle(student.paymentStatus);
 
+  const handleSaveNotes = () => {
+    startNotesTransition(async () => {
+      const result = await updateStudent(student.id, { notes: notesValue });
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Notes saved");
+    });
+  };
+
   return (
     <AnimatedPage>
       {/* Back button */}
-      <Link href="/admin/students" className="inline-flex items-center gap-2 text-xs text-white/40 hover:text-white/70 transition-colors mb-4">
+      <Link href={`${basePath}/students`} className="inline-flex items-center gap-2 text-xs text-white/40 hover:text-white/70 transition-colors mb-4">
         <ArrowLeft className="w-3.5 h-3.5" />
         Back to Students
       </Link>
@@ -65,12 +84,16 @@ export function StudentProfileClient({ student, classes, invoices, sessions, exa
               {student.outstandingBalance > 0 && (
                 <div className="text-xs"><span className="text-white/40">Outstanding:</span> <span className="font-semibold text-red-400">{formatCurrency(student.outstandingBalance)}</span></div>
               )}
+              <div className="text-xs"><span className="text-white/40">Monthly Fee:</span> <span className="font-semibold text-white/80">{formatCurrency(student.monthlyFee)}</span></div>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
-            <GlassButton variant="secondary" size="sm" leftIcon={<CreditCard className="w-3.5 h-3.5" />}>Record Payment</GlassButton>
-            <GlassButton variant="ghost" size="sm" leftIcon={<MessageSquare className="w-3.5 h-3.5" />}>Message Parent</GlassButton>
-          </div>
+          {isAdmin && (
+            <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+              <GlassButton variant="secondary" size="sm" leftIcon={<Pencil className="w-3.5 h-3.5" />} onClick={() => setEditOpen(true)}>Edit</GlassButton>
+              <GlassButton variant="secondary" size="sm" leftIcon={<CreditCard className="w-3.5 h-3.5" />}>Record Payment</GlassButton>
+              <GlassButton variant="ghost" size="sm" leftIcon={<MessageSquare className="w-3.5 h-3.5" />}>Message Parent</GlassButton>
+            </div>
+          )}
         </div>
       </GlassCard>
 
@@ -102,13 +125,15 @@ export function StudentProfileClient({ student, classes, invoices, sessions, exa
               <div className="flex justify-between"><span className="text-white/40">Phone</span><span className="text-white/80">{student.phone}</span></div>
               <div className="flex justify-between"><span className="text-white/40">Parent</span><span className="text-white/80">{student.parentName}</span></div>
               <div className="flex justify-between"><span className="text-white/40">Parent Phone</span><span className="text-white/80">{student.parentPhone}</span></div>
+              <div className="flex justify-between"><span className="text-white/40">Monthly Fee</span><span className="text-white/80 font-medium">{formatCurrency(student.monthlyFee)}</span></div>
             </div>
           </GlassCard>
           <GlassCard>
             <h3 className="text-sm font-semibold text-white/70 mb-3">Enrolled Classes</h3>
             <div className="space-y-2">
+              {classes.length === 0 && <p className="text-sm text-white/30">Not enrolled in any classes yet.</p>}
               {classes.map(cls => (
-                <Link key={cls.id} href={`/admin/classes/${cls.id}`} className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 transition-colors">
+                <Link key={cls.id} href={`${basePath}/classes/${cls.id}`} className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 transition-colors">
                   <div className="flex items-center gap-2.5">
                     <div className="w-2 h-8 rounded-full" style={{ backgroundColor: cls.color }} />
                     <div>
@@ -153,6 +178,9 @@ export function StudentProfileClient({ student, classes, invoices, sessions, exa
                     );
                   })
                 )}
+                {sessions.length === 0 && (
+                  <tr><td colSpan={3} className="text-center py-8 text-sm text-white/30">No attendance records yet.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -160,36 +188,63 @@ export function StudentProfileClient({ student, classes, invoices, sessions, exa
       )}
 
       {activeTab === "payments" && (
-        <GlassCard>
-          <h3 className="text-sm font-semibold text-white/70 mb-3">Payment History</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/8">
-                  <th className="text-left px-3 py-2 text-xs font-semibold text-white/40 uppercase">Date</th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold text-white/40 uppercase">Amount</th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold text-white/40 uppercase">Paid</th>
-                  <th className="text-left px-3 py-2 text-xs font-semibold text-white/40 uppercase">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.map(inv => {
-                  const ps = getPaymentStatusStyle(inv.status);
-                  return (
-                    <tr key={inv.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
-                      <td className="px-3 py-2.5 text-sm text-white/70">{formatDate(inv.issuedDate)}</td>
-                      <td className="px-3 py-2.5 text-sm text-white/70">{formatCurrency(inv.totalAmount)}</td>
-                      <td className="px-3 py-2.5 text-sm text-white/70">{formatCurrency(inv.paidAmount)}</td>
-                      <td className="px-3 py-2.5">
-                        <GlassBadge variant={inv.status === "paid" ? "green" : inv.status === "partial" ? "amber" : "red"} dot>{ps.label}</GlassBadge>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </GlassCard>
+        <div className="space-y-4">
+          {/* Outstanding balance summary */}
+          {invoices.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <GlassCard className="!p-4">
+                <p className="text-xs text-white/40 mb-1">Total Billed</p>
+                <p className="text-lg font-bold text-white/90">{formatCurrency(invoices.reduce((s, i) => s + i.totalAmount, 0))}</p>
+              </GlassCard>
+              <GlassCard className="!p-4">
+                <p className="text-xs text-white/40 mb-1">Total Paid</p>
+                <p className="text-lg font-bold text-emerald-400">{formatCurrency(invoices.reduce((s, i) => s + i.paidAmount, 0))}</p>
+              </GlassCard>
+              <GlassCard className="!p-4">
+                <p className="text-xs text-white/40 mb-1">Outstanding Balance</p>
+                <p className="text-lg font-bold text-red-400">{formatCurrency(invoices.reduce((s, i) => s + Math.max(0, i.totalAmount - i.paidAmount), 0))}</p>
+              </GlassCard>
+            </div>
+          )}
+          <GlassCard>
+            <h3 className="text-sm font-semibold text-white/70 mb-3">Payment History</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/8">
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-white/40 uppercase">Date</th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-white/40 uppercase">Description</th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-white/40 uppercase">Amount</th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-white/40 uppercase">Paid</th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-white/40 uppercase">Balance</th>
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-white/40 uppercase">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoices.map(inv => {
+                    const ps = getPaymentStatusStyle(inv.status);
+                    const balance = inv.totalAmount - inv.paidAmount;
+                    return (
+                      <tr key={inv.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
+                        <td className="px-3 py-2.5 text-sm text-white/70">{formatDate(inv.issuedDate)}</td>
+                        <td className="px-3 py-2.5 text-sm text-white/50">{inv.notes || "Tuition"}</td>
+                        <td className="px-3 py-2.5 text-sm text-white/70">{formatCurrency(inv.totalAmount)}</td>
+                        <td className="px-3 py-2.5 text-sm text-white/70">{formatCurrency(inv.paidAmount)}</td>
+                        <td className="px-3 py-2.5 text-sm"><span className={cn("font-medium", balance > 0 ? "text-red-400" : "text-white/40")}>{balance > 0 ? formatCurrency(balance) : "—"}</span></td>
+                        <td className="px-3 py-2.5">
+                          <GlassBadge variant={inv.status === "paid" ? "green" : inv.status === "partial" ? "amber" : "red"} dot>{ps.label}</GlassBadge>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {invoices.length === 0 && (
+                    <tr><td colSpan={6} className="text-center py-8 text-sm text-white/30">No invoices yet.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </GlassCard>
+        </div>
       )}
 
       {activeTab === "grades" && (
@@ -216,6 +271,9 @@ export function StudentProfileClient({ student, classes, invoices, sessions, exa
                     </tr>
                   ))
                 )}
+                {exams.length === 0 && (
+                  <tr><td colSpan={4} className="text-center py-8 text-sm text-white/30">No exam grades yet.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -224,12 +282,29 @@ export function StudentProfileClient({ student, classes, invoices, sessions, exa
 
       {activeTab === "notes" && (
         <GlassCard>
-          <h3 className="text-sm font-semibold text-white/70 mb-3">Notes</h3>
-          <p className="text-sm text-white/40">
-            {student.notes || "No notes yet. This feature will allow adding and viewing timeline notes about the student."}
-          </p>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-white/70">Notes</h3>
+            <GlassButton
+              variant="secondary"
+              size="sm"
+              leftIcon={<Save className="w-3.5 h-3.5" />}
+              onClick={handleSaveNotes}
+              disabled={notesSaving || notesValue === (student.notes || "")}
+            >
+              {notesSaving ? "Saving..." : "Save Notes"}
+            </GlassButton>
+          </div>
+          <textarea
+            value={notesValue}
+            onChange={e => setNotesValue(e.target.value)}
+            rows={6}
+            className="w-full rounded-xl px-3 py-2.5 text-sm bg-white/5 border border-white/10 text-white/90 placeholder:text-white/25 transition-all duration-150 focus:outline-none focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/20 resize-none"
+            placeholder="Add notes about this student..."
+          />
         </GlassCard>
       )}
+
+      {isAdmin && <EditStudentModal open={editOpen} onClose={() => setEditOpen(false)} student={student} />}
     </AnimatedPage>
   );
 }

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
+import { saveAttendanceRecords } from "@/lib/actions/attendance";
 import { AnimatedPage } from "@/components/shared/AnimatedPage";
 import { GlassCard } from "@/components/glass/GlassCard";
 import { GlassButton } from "@/components/glass/GlassButton";
@@ -19,13 +20,28 @@ const statusOptions: AttendanceStatus[] = ["present", "absent", "late", "excused
 
 export function SessionDetailClient({ session }: SessionDetailClientProps) {
   const [records, setRecords] = useState(session.records);
+  const [isPending, startTransition] = useTransition();
 
   const updateStatus = (studentId: string, status: AttendanceStatus) => {
     setRecords(prev => prev.map(r => r.studentId === studentId ? { ...r, status } : r));
   };
 
   const handleSave = () => {
-    toast.success("Attendance saved successfully");
+    startTransition(async () => {
+      const result = await saveAttendanceRecords({
+        sessionId: session.id,
+        records: records.map(r => ({
+          studentId: r.studentId,
+          status: r.status,
+          note: r.note || undefined,
+        })),
+      });
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Attendance saved successfully");
+    });
   };
 
   return (
@@ -50,8 +66,8 @@ export function SessionDetailClient({ session }: SessionDetailClientProps) {
       <GlassCard padding="none">
         <div className="px-5 py-4 border-b border-white/8 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-white/70">Mark Attendance</h3>
-          <GlassButton variant="primary" size="sm" leftIcon={<Save className="w-3.5 h-3.5" />} onClick={handleSave}>
-            Save Attendance
+          <GlassButton variant="primary" size="sm" leftIcon={<Save className="w-3.5 h-3.5" />} onClick={handleSave} disabled={isPending}>
+            {isPending ? "Saving..." : "Save Attendance"}
           </GlassButton>
         </div>
         <div className="overflow-x-auto">

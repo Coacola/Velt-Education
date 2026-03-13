@@ -2,37 +2,46 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Bell, ChevronDown, Settings, LogOut,
   User, ShieldCheck, GraduationCap, Menu
 } from "lucide-react";
-import { cn, formatRelative } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/constants";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
 import { GlassButton } from "@/components/glass/GlassButton";
-import { mockActivity } from "@/lib/mock/activity";
+import type { NavItem } from "@/components/layout/Sidebar";
+
+interface TopbarUser {
+  name?: string;
+  email?: string;
+}
 
 interface TopbarProps {
   sidebarCollapsed: boolean;
   onMenuToggle: () => void;
   onMobileMenuToggle?: () => void;
+  user?: TopbarUser;
+  navItems?: readonly NavItem[];
+  roleLabel?: string;
+  basePath?: string;
 }
 
-export function Topbar({ sidebarCollapsed, onMenuToggle, onMobileMenuToggle }: TopbarProps) {
+export function Topbar({ sidebarCollapsed, onMenuToggle, onMobileMenuToggle, user, navItems = NAV_ITEMS, roleLabel = "Admin", basePath = "/admin" }: TopbarProps) {
   const pathname = usePathname();
   const { setOpen } = useCommandPalette();
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"admin" | "teacher">("admin");
 
-  const currentNav = NAV_ITEMS.find(item => {
-    if (item.href === "/admin") return pathname === "/admin";
+  const currentNav = navItems.find(item => {
+    if (item.href === basePath) return pathname === basePath;
     return pathname.startsWith(item.href);
   });
 
-  const recentNotifs = mockActivity.slice(0, 5);
-  const unreadCount = recentNotifs.filter(a => a.severity === "error" || a.severity === "warning").length;
+  const displayName = user?.name || roleLabel;
+  const displayEmail = user?.email || "";
 
   return (
     <div
@@ -80,34 +89,10 @@ export function Topbar({ sidebarCollapsed, onMenuToggle, onMobileMenuToggle }: T
         <kbd className="text-[10px] bg-white/8 border border-white/10 rounded px-1.5 py-0.5 font-mono">⌘K</kbd>
       </button>
 
-      {/* View Switcher — tablet+ */}
-      <div className="hidden lg:flex items-center bg-white/5 border border-white/8 rounded-xl p-0.5">
-        {(["admin", "teacher"] as const).map(mode => (
-          <button
-            key={mode}
-            onClick={() => setViewMode(mode)}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150",
-              viewMode === mode
-                ? "bg-brand-500/20 text-brand-300 shadow-inner"
-                : "text-white/40 hover:text-white/60"
-            )}
-          >
-            {mode === "admin" ? <ShieldCheck className="w-3.5 h-3.5" /> : <GraduationCap className="w-3.5 h-3.5" />}
-            {mode === "admin" ? "Admin" : "Teacher"}
-          </button>
-        ))}
-      </div>
-
       {/* Notifications */}
       <div className="relative">
         <GlassButton variant="ghost" size="icon" onClick={() => { setNotifOpen(p => !p); setProfileOpen(false); }} className="relative">
           <Bell className="w-4 h-4" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center">
-              {unreadCount}
-            </span>
-          )}
         </GlassButton>
         <AnimatePresence>
           {notifOpen && (
@@ -122,25 +107,8 @@ export function Topbar({ sidebarCollapsed, onMenuToggle, onMobileMenuToggle }: T
               <div className="px-4 py-3 border-b border-white/8">
                 <p className="text-sm font-semibold text-white/90">Notifications</p>
               </div>
-              <div className="divide-y divide-white/5 max-h-72 overflow-y-auto">
-                {recentNotifs.map(notif => (
-                  <div key={notif.id} className="px-4 py-3 hover:bg-white/3 transition-colors cursor-pointer">
-                    <div className="flex items-start gap-2.5">
-                      <div className={cn(
-                        "w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 text-xs",
-                        notif.severity === "success" && "bg-green-400/10 text-green-400",
-                        notif.severity === "warning" && "bg-amber-400/10 text-amber-400",
-                        notif.severity === "error" && "bg-red-400/10 text-red-400",
-                        notif.severity === "info" && "bg-blue-400/10 text-blue-400",
-                      )}>●</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-white/85 truncate">{notif.title}</p>
-                        <p className="text-xs text-white/45 truncate">{notif.description}</p>
-                        <p className="text-[10px] text-white/25 mt-0.5">{formatRelative(notif.timestamp)}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="px-4 py-6 text-center text-xs text-white/35">
+                No new notifications
               </div>
             </motion.div>
           )}
@@ -153,10 +121,10 @@ export function Topbar({ sidebarCollapsed, onMenuToggle, onMobileMenuToggle }: T
           onClick={() => { setProfileOpen(p => !p); setNotifOpen(false); }}
           className="flex items-center gap-2 pl-2 pr-1 sm:pr-3 py-1.5 rounded-xl hover:bg-white/5 transition-colors group"
         >
-          <div className="w-7 h-7 rounded-lg bg-brand-gradient flex items-center justify-center text-xs font-bold text-white shadow-glow-brand">A</div>
+          <div className="w-7 h-7 rounded-lg bg-brand-gradient flex items-center justify-center text-xs font-bold text-white shadow-glow-brand">{displayName[0]?.toUpperCase() || "A"}</div>
           <div className="hidden sm:block text-left">
-            <p className="text-xs font-medium text-white/85 leading-none">Admin</p>
-            <p className="text-[10px] text-white/35 leading-none mt-0.5">Owner</p>
+            <p className="text-xs font-medium text-white/85 leading-none">{displayName}</p>
+            <p className="text-[10px] text-white/35 leading-none mt-0.5">{roleLabel}</p>
           </div>
           <ChevronDown className="w-3 h-3 text-white/30 group-hover:text-white/50 transition-colors hidden sm:block" />
         </button>
@@ -171,8 +139,8 @@ export function Topbar({ sidebarCollapsed, onMenuToggle, onMobileMenuToggle }: T
               style={{ background: "rgba(13,13,26,0.97)", backdropFilter: "blur(40px)", WebkitBackdropFilter: "blur(40px)" }}
             >
               <div className="px-3 py-3 border-b border-white/8">
-                <p className="text-xs font-semibold text-white/85">Admin User</p>
-                <p className="text-[10px] text-white/40">admin@veltedu.cy</p>
+                <p className="text-xs font-semibold text-white/85">{displayName}</p>
+                <p className="text-[10px] text-white/40">{displayEmail}</p>
               </div>
               <div className="p-2">
                 <button className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white/90 hover:bg-white/5 transition-colors">
@@ -182,7 +150,10 @@ export function Topbar({ sidebarCollapsed, onMenuToggle, onMobileMenuToggle }: T
                   <Settings className="w-3.5 h-3.5" />Settings
                 </button>
                 <div className="h-px bg-white/8 my-1.5" />
-                <button className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-red-400/80 hover:text-red-400 hover:bg-red-400/5 transition-colors">
+                <button
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-red-400/80 hover:text-red-400 hover:bg-red-400/5 transition-colors"
+                >
                   <LogOut className="w-3.5 h-3.5" />Sign out
                 </button>
               </div>

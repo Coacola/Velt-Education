@@ -1,9 +1,11 @@
 "use client";
 
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { createStudent } from "@/lib/actions/students";
 import { GlassModal } from "@/components/glass/GlassModal";
 import { GlassInput } from "@/components/glass/GlassInput";
 import { GlassSelect } from "@/components/glass/GlassSelect";
@@ -18,6 +20,7 @@ const schema = z.object({
   parentPhone: z.string().min(5, "Required"),
   year: z.enum(["Α", "Β", "Γ"]),
   school: z.string().min(2, "Required"),
+  monthlyFee: z.coerce.number().min(0, "Must be 0 or more"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -28,14 +31,26 @@ interface AddStudentModalProps {
 }
 
 export function AddStudentModal({ open, onClose }: AddStudentModalProps) {
+  const [isPending, startTransition] = useTransition();
   const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      year: "Α",
+      monthlyFee: 140,
+    },
   });
 
   const onSubmit = (data: FormData) => {
-    toast.success(`Student "${data.firstName} ${data.lastName}" added successfully`);
-    reset();
-    onClose();
+    startTransition(async () => {
+      const result = await createStudent(data);
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(`Student "${data.firstName} ${data.lastName}" added successfully`);
+      reset();
+      onClose();
+    });
   };
 
   return (
@@ -47,8 +62,10 @@ export function AddStudentModal({ open, onClose }: AddStudentModalProps) {
       size="lg"
       footer={
         <>
-          <GlassButton variant="ghost" onClick={onClose}>Cancel</GlassButton>
-          <GlassButton variant="primary" onClick={handleSubmit(onSubmit)}>Add Student</GlassButton>
+          <GlassButton variant="ghost" onClick={onClose} disabled={isPending}>Cancel</GlassButton>
+          <GlassButton variant="primary" onClick={handleSubmit(onSubmit)} disabled={isPending}>
+            {isPending ? "Adding..." : "Add Student"}
+          </GlassButton>
         </>
       }
     >
@@ -70,6 +87,7 @@ export function AddStudentModal({ open, onClose }: AddStudentModalProps) {
           error={errors.year?.message}
         />
         <GlassInput label="School" {...register("school")} error={errors.school?.message} placeholder="School name" />
+        <GlassInput label="Monthly Fee (€)" type="number" step="0.01" {...register("monthlyFee")} error={errors.monthlyFee?.message} placeholder="140" />
       </form>
     </GlassModal>
   );

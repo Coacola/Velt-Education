@@ -19,4 +19,5 @@ export interface Exam {
   grades: ExamGrade[];
   classAverage: number;
   notes?: string;
+  publishedAt?: string | null;
 }

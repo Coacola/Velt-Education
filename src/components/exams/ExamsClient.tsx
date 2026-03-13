@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Plus } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { createExam } from "@/lib/actions/exams";
 import { AnimatedPage } from "@/components/shared/AnimatedPage";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { GlassCard } from "@/components/glass/GlassCard";
@@ -11,7 +13,7 @@ import { GlassBadge } from "@/components/glass/GlassBadge";
 import { GlassModal } from "@/components/glass/GlassModal";
 import { GlassInput } from "@/components/glass/GlassInput";
 import { GlassSelect } from "@/components/glass/GlassSelect";
-import { cn, formatDate, getGradeColor, getGradeBg } from "@/lib/utils";
+import { cn, formatDate, getGradeColor } from "@/lib/utils";
 import { listContainerVariants, listItemVariants } from "@/lib/motion";
 import type { Exam } from "@/lib/types/exam";
 import type { Class } from "@/lib/types/class";
@@ -24,6 +26,54 @@ interface ExamsClientProps {
 export function ExamsClient({ exams, classes }: ExamsClientProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  // Form state
+  const [title, setTitle] = useState("");
+  const [classId, setClassId] = useState("");
+  const [date, setDate] = useState("");
+  const [maxScore, setMaxScore] = useState("20");
+
+  const resetForm = () => {
+    setTitle("");
+    setClassId("");
+    setDate("");
+    setMaxScore("20");
+  };
+
+  const handleCreate = () => {
+    if (!title.trim()) {
+      toast.error("Exam title is required");
+      return;
+    }
+    if (!classId) {
+      toast.error("Please select a class");
+      return;
+    }
+    if (!date) {
+      toast.error("Please select a date");
+      return;
+    }
+
+    const selectedClass = classes.find(c => c.id === classId);
+
+    startTransition(async () => {
+      const result = await createExam({
+        title,
+        classId,
+        subject: selectedClass?.subject || "",
+        date,
+        maxScore: parseInt(maxScore) || 20,
+      });
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(`Exam "${title}" created successfully`);
+      resetForm();
+      setCreateOpen(false);
+    });
+  };
 
   return (
     <AnimatedPage>
@@ -98,13 +148,20 @@ export function ExamsClient({ exams, classes }: ExamsClientProps) {
 
       {/* Create exam modal */}
       <GlassModal open={createOpen} onClose={() => setCreateOpen(false)} title="Create New Exam" size="md"
-        footer={<><GlassButton variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</GlassButton><GlassButton variant="primary" onClick={() => setCreateOpen(false)}>Create</GlassButton></>}
+        footer={
+          <>
+            <GlassButton variant="ghost" onClick={() => setCreateOpen(false)} disabled={isPending}>Cancel</GlassButton>
+            <GlassButton variant="primary" onClick={handleCreate} disabled={isPending}>
+              {isPending ? "Creating..." : "Create"}
+            </GlassButton>
+          </>
+        }
       >
         <div className="space-y-4">
-          <GlassInput label="Exam Title" placeholder="e.g. Mid-term Trigonometry" />
-          <GlassSelect label="Class" options={classes.map(c => ({value:c.id,label:c.name}))} />
-          <GlassInput label="Date" type="date" />
-          <GlassInput label="Max Score" type="number" placeholder="20" />
+          <GlassInput label="Exam Title" placeholder="e.g. Mid-term Trigonometry" value={title} onChange={e => setTitle(e.target.value)} />
+          <GlassSelect label="Class" value={classId} onChange={e => setClassId(e.target.value)} options={classes.map(c => ({value:c.id,label:c.name}))} />
+          <GlassInput label="Date" type="date" value={date} onChange={e => setDate(e.target.value)} />
+          <GlassInput label="Max Score" type="number" placeholder="20" value={maxScore} onChange={e => setMaxScore(e.target.value)} />
         </div>
       </GlassModal>
     </AnimatedPage>

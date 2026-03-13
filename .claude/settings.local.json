@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(python3 -:*)",
+      "Bash(python3 /tmp/write_students.py)",
+      "Bash(where python3)",
+      "Bash(where python)",
+      "Bash(where py)",
+      "Bash(node -e \"console.log\\(''node works''\\)\")",
+      "Bash(node -e \":*)",
+      "Bash(printf 'hello %s\\\\n' \"world with apostrophe it''\")",
+      "Bash(printf '%s\\\\n' \"Λύκειο Λευκωσίας\")",
+      "Bash(wc -l \"/c/Users/user/Desktop/Claude Code/Velt Education/.claude/worktrees/gallant-tharp/src/lib/services\"/*)"
+    ]
+  }
+}

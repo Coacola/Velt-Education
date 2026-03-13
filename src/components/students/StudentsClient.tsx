@@ -33,11 +33,21 @@ export function StudentsClient({ initialData }: StudentsClientProps) {
 
   const filtered = useMemo(() => {
     let data = initialData;
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
+      data = data.filter(s =>
+        s.fullName.toLowerCase().includes(q) ||
+        s.phone.toLowerCase().includes(q) ||
+        s.email.toLowerCase().includes(q) ||
+        s.parentName.toLowerCase().includes(q) ||
+        s.school.toLowerCase().includes(q)
+      );
+    }
     if (yearFilter) data = data.filter(s => s.year === yearFilter);
     if (statusFilter) data = data.filter(s => s.paymentStatus === statusFilter);
     if (riskFilter) data = data.filter(s => s.atRisk);
     return data;
-  }, [initialData, yearFilter, statusFilter, riskFilter]);
+  }, [initialData, debouncedSearch, yearFilter, statusFilter, riskFilter]);
 
   const columns = useMemo(() => [
     columnHelper.accessor("fullName", {
@@ -183,7 +193,6 @@ export function StudentsClient({ initialData }: StudentsClientProps) {
         columns={columns}
         data={filtered}
         onRowClick={row => router.push(`/admin/students/${row.id}`)}
-        globalFilter={debouncedSearch}
         pagination
         mobileCardRenderer={(student) => (
           <div className="glass-panel p-4 rounded-xl space-y-2">

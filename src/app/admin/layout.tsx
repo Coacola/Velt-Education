@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { CommandPalette } from "@/components/layout/CommandPalette";
@@ -9,6 +10,7 @@ import { useSidebar } from "@/hooks/useSidebar";
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const sidebar = useSidebar();
   const cmdPalette = useCommandPaletteState();
+  const { data: session } = useSession();
 
   return (
     <CommandPaletteContext.Provider value={cmdPalette}>
@@ -23,6 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           sidebarCollapsed={sidebar.collapsed}
           onMenuToggle={sidebar.toggle}
           onMobileMenuToggle={sidebar.toggleMobile}
+          user={session?.user ? { name: session.user.name ?? undefined, email: session.user.email ?? undefined } : undefined}
         />
 
         <main

@@ -12,6 +12,7 @@ export interface Student {
   parentPhone: string;
   year: SchoolYear;
   school: string;
+  monthlyFee: number;
   enrolledClassIds: string[];
   subjects: string[];
   paymentStatus: PaymentStatus;
